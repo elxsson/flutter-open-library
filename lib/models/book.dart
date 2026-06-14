@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class Book {
   final String key;
   final String title;
@@ -64,6 +62,35 @@ class Book {
           : null,
       subjects: parseSubjects(json['subjects']),
       description: parseDescription(json['description']),
+    );
+  }
+
+  factory Book.fromSearchJson(Map<String, dynamic> json) {
+    List<String> parseAuthorNames(dynamic data) {
+      if (data is List) return data.map((s) => s.toString()).toList();
+      return [];
+    }
+
+    List<String> parseAuthorKeys(dynamic data) {
+      if (data is List) return data.map((s) => s.toString()).toList();
+      return [];
+    }
+
+    List<String> parseSubjects(dynamic data) {
+      if (data is List) return data.map((s) => s.toString()).toList();
+      return [];
+    }
+
+    return Book(
+      key: json['key']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      authors: parseAuthorNames(json['author_name']),
+      authorKeys: parseAuthorKeys(json['author_key']),
+      coverId: json['cover_i'] is int ? json['cover_i'] : null,
+      firstPublishYear: json['first_publish_year'] is int
+          ? json['first_publish_year']
+          : null,
+      subjects: parseSubjects(json['subject']),
     );
   }
 }
