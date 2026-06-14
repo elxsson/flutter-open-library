@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/book.dart';
+import '../models/author.dart';
 
 class BookService {
   static const String _baseUrl = 'https://openlibrary.org';
@@ -17,6 +18,33 @@ class BookService {
     final works = data['works'] as List<dynamic>;
 
     return works.map((w) => Book.fromJson(w as Map<String, dynamic>)).toList();
+  }
+
+  Future<Author> fetchAuthorDetails(String authorKey) async {
+    final uri = Uri.parse('$_baseUrl/authors/$authorKey.json');
+    final response = await http.get(uri).timeout(const Duration(seconds: 10));
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load author details: ${response.statusCode}');
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    return Author.fromJson(data);
+  }
+
+  Future<List<Book>> fetchAuthorWorks(String authorKey) async {
+    final uri = Uri.parse('$_baseUrl/authors/$authorKey/works.json');
+    final response = await http.get(uri).timeout(const Duration(seconds: 10));
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load author works: ${response.statusCode}');
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final entries = data['entries'] as List<dynamic>? ?? [];
+    return entries
+        .map((e) => Book.fromSearchJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<Map<String, String>> fetchAuthorInfo(String authorKey) async {
