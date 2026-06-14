@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/book.dart';
 import '../models/author.dart';
+import '../models/subject.dart';
 
 class BookService {
   static const String _baseUrl = 'https://openlibrary.org';
@@ -117,6 +118,24 @@ class BookService {
       subjects: subjects,
       description: description,
     );
+  }
+
+  Future<Subject> fetchSubject(String name, {int limit = 20, int offset = 0}) async {
+    final params = <String, String>{
+      'details': 'true',
+      'limit': '$limit',
+      'offset': '$offset',
+    };
+    final uri = Uri.parse('$_baseUrl/subjects/$name.json')
+        .replace(queryParameters: params);
+    final response = await http.get(uri).timeout(const Duration(seconds: 10));
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load subject: ${response.statusCode}');
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    return Subject.fromJson(data);
   }
 
   Future<List<Book>> search({
