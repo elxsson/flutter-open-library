@@ -9,8 +9,8 @@ Aplicativo de busca e exploração de livros que consome a [Open Library API](ht
 | Tela | Rota | Descrição | Status |
 |------|------|-----------|--------|
 | **Home** | `/` | Livros em alta do dia + chips de categorias | ✅ |
-| **Search** | `/search` | Busca dinâmica por título, autor ou assunto | ⬜ |
-| **Book Detail** | `/book` | Capa, título, autores, descrição e subjects do livro | ⬜ |
+| **Search** | `/search` | Busca dinâmica por título, autor ou assunto | ✅ |
+| **Book Detail** | `/book` | Capa, título, autores, descrição e subjects do livro | ✅ |
 | **Author** | `/author` | Foto, bio, data de nascimento e obras do autor | ⬜ |
 | **Subject** | `/subject` | Livros e autores de uma categoria/assunto | ⬜ |
 | **About** | `/about` | Informações sobre o app e o desenvolvedor | ⬜ |
