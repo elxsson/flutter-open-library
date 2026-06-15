@@ -22,14 +22,26 @@ class Book {
   factory Book.fromJson(Map<String, dynamic> json) {
     List<String> parseAuthors(dynamic data) {
       if (data is List) {
-        return data.map((a) => a is String ? a : a['name']?.toString() ?? '').toList();
+        return data.map((a) {
+          if (a is String) return a;
+          final name = a['name'];
+          if (name is String) return name;
+          return '';
+        }).toList();
       }
       return [];
     }
 
     List<String> parseAuthorKeys(dynamic data) {
       if (data is List) {
-        return data.map((a) => a is String ? a : a['key']?.toString() ?? '').toList();
+        return data.map((a) {
+          if (a is String) return a;
+          final key = a['key'];
+          if (key is String) return key;
+          final author = a['author'];
+          if (author is Map) return author['key']?.toString() ?? '';
+          return '';
+        }).toList();
       }
       return [];
     }

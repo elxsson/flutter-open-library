@@ -18,7 +18,7 @@ class BookDetailScreen extends HookWidget {
     final errorMessage = useState<String?>(null);
 
     useEffect(() {
-      () async {
+      Future.microtask(() async {
         isLoading.value = true;
         errorMessage.value = null;
         try {
@@ -29,7 +29,7 @@ class BookDetailScreen extends HookWidget {
           isLoading.value = false;
           errorMessage.value = 'Erro ao carregar detalhes do livro.';
         }
-      }();
+      });
       return null;
     }, []);
 

@@ -20,7 +20,7 @@ class AuthorScreen extends HookWidget {
     final errorMessage = useState<String?>(null);
 
     useEffect(() {
-      () async {
+      Future.microtask(() async {
         isLoading.value = true;
         errorMessage.value = null;
         try {
@@ -36,7 +36,7 @@ class AuthorScreen extends HookWidget {
           isLoading.value = false;
           errorMessage.value = 'Erro ao carregar dados do autor.';
         }
-      }();
+      });
       return null;
     }, []);
 

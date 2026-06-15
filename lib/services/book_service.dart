@@ -9,7 +9,7 @@ class BookService {
 
   Future<List<Book>> fetchTrending() async {
     final uri = Uri.parse('$_baseUrl/trending/daily.json');
-    final response = await http.get(uri).timeout(const Duration(seconds: 10));
+    final response = await http.get(uri).timeout(const Duration(seconds: 30));
 
     if (response.statusCode != 200) {
       throw Exception('Failed to load trending books: ${response.statusCode}');
@@ -18,12 +18,12 @@ class BookService {
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final works = data['works'] as List<dynamic>;
 
-    return works.map((w) => Book.fromJson(w as Map<String, dynamic>)).toList();
+    return works.map((w) => Book.fromSearchJson(w as Map<String, dynamic>)).toList();
   }
 
   Future<Author> fetchAuthorDetails(String authorKey) async {
     final uri = Uri.parse('$_baseUrl/authors/$authorKey.json');
-    final response = await http.get(uri).timeout(const Duration(seconds: 10));
+    final response = await http.get(uri).timeout(const Duration(seconds: 30));
 
     if (response.statusCode != 200) {
       throw Exception('Failed to load author details: ${response.statusCode}');
@@ -35,7 +35,7 @@ class BookService {
 
   Future<List<Book>> fetchAuthorWorks(String authorKey) async {
     final uri = Uri.parse('$_baseUrl/authors/$authorKey/works.json');
-    final response = await http.get(uri).timeout(const Duration(seconds: 10));
+    final response = await http.get(uri).timeout(const Duration(seconds: 30));
 
     if (response.statusCode != 200) {
       throw Exception('Failed to load author works: ${response.statusCode}');
@@ -44,13 +44,13 @@ class BookService {
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final entries = data['entries'] as List<dynamic>? ?? [];
     return entries
-        .map((e) => Book.fromSearchJson(e as Map<String, dynamic>))
+        .map((e) => Book.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
   Future<Map<String, String>> fetchAuthorInfo(String authorKey) async {
     final uri = Uri.parse('$_baseUrl/authors/$authorKey.json');
-    final response = await http.get(uri).timeout(const Duration(seconds: 10));
+    final response = await http.get(uri).timeout(const Duration(seconds: 30));
 
     if (response.statusCode != 200) {
       return {'key': authorKey, 'name': authorKey};
@@ -65,7 +65,7 @@ class BookService {
 
   Future<Book> fetchBookDetail(String olid) async {
     final uri = Uri.parse('$_baseUrl/works/$olid.json');
-    final response = await http.get(uri).timeout(const Duration(seconds: 10));
+    final response = await http.get(uri).timeout(const Duration(seconds: 30));
 
     if (response.statusCode != 200) {
       throw Exception('Failed to load book detail: ${response.statusCode}');
@@ -77,8 +77,8 @@ class BookService {
     final authorKeys = <String>[];
     for (final a in authorsData) {
       final author = (a as Map<String, dynamic>)['author'] as Map<String, dynamic>?;
-      final key = author?['key']?.toString();
-      if (key != null) authorKeys.add(key);
+      final key = author?['key']?.toString().replaceAll('/authors/', '');
+      if (key != null && key.isNotEmpty) authorKeys.add(key);
     }
 
     final authorFutures = authorKeys.map((k) => fetchAuthorInfo(k));
@@ -128,7 +128,7 @@ class BookService {
     };
     final uri = Uri.parse('$_baseUrl/subjects/$name.json')
         .replace(queryParameters: params);
-    final response = await http.get(uri).timeout(const Duration(seconds: 10));
+    final response = await http.get(uri).timeout(const Duration(seconds: 30));
 
     if (response.statusCode != 200) {
       throw Exception('Failed to load subject: ${response.statusCode}');
@@ -159,7 +159,7 @@ class BookService {
     }
 
     final uri = Uri.parse('$_baseUrl/search.json').replace(queryParameters: params);
-    final response = await http.get(uri).timeout(const Duration(seconds: 10));
+    final response = await http.get(uri).timeout(const Duration(seconds: 30));
 
     if (response.statusCode != 200) {
       throw Exception('Failed to search books: ${response.statusCode}');
