@@ -27,6 +27,58 @@ class HomeScreen extends HookWidget {
       return null;
     }, []);
 
+    final scrollController = useScrollController();
+    final canScrollLeft = useState(false);
+    final canScrollRight = useState(false);
+    final tableState = useValueListenable(dataService.tableStateNotifier);
+
+    void _updateArrows() {
+      if (!scrollController.hasClients) return;
+      final max = scrollController.position.maxScrollExtent;
+      final pos = scrollController.position.pixels;
+      canScrollLeft.value = pos > 0;
+      canScrollRight.value = pos < max;
+    }
+
+    useEffect(() {
+      scrollController.addListener(_updateArrows);
+      return () => scrollController.removeListener(_updateArrows);
+    }, []);
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _updateArrows());
+      return null;
+    }, [tableState]);
+
+    void scrollCarousel(bool left) {
+      final step = 152.0;
+      final target = scrollController.offset + (left ? -step : step);
+      scrollController.animateTo(
+        target.clamp(0.0, scrollController.position.maxScrollExtent),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+
+    Widget _arrow(bool left) {
+      return GestureDetector(
+        onTap: () => scrollCarousel(left),
+        child: Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.85),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            left ? Icons.chevron_left : Icons.chevron_right,
+            color: AppColors.secondary,
+            size: 24,
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Book Finder'),
@@ -90,19 +142,38 @@ class HomeScreen extends HookWidget {
                         else
                           SizedBox(
                             height: 240,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: books.length,
-                              itemBuilder: (_, index) {
-                                final book = books[index];
-                                return BookCard(
-                                  book: book,
-                                  onTap: () {
-                                    final olid = book.key.replaceAll('/works/', '');
-                                    Get.toNamed('/book', arguments: olid);
+                            child: Stack(
+                              children: [
+                                ListView.builder(
+                                  controller: scrollController,
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: books.length > 20 ? 20 : books.length,
+                                  itemBuilder: (_, index) {
+                                    final book = books[index];
+                                    return BookCard(
+                                      book: book,
+                                      onTap: () {
+                                        final olid = book.key.replaceAll('/works/', '');
+                                        Get.toNamed('/book', arguments: olid);
+                                      },
+                                    );
                                   },
-                                );
-                              },
+                                ),
+                                if (canScrollLeft.value)
+                                  Positioned(
+                                    left: 4,
+                                    top: 0,
+                                    bottom: 0,
+                                    child: Center(child: _arrow(true)),
+                                  ),
+                                if (canScrollRight.value)
+                                  Positioned(
+                                    right: 4,
+                                    top: 0,
+                                    bottom: 0,
+                                    child: Center(child: _arrow(false)),
+                                  ),
+                              ],
                             ),
                           ),
                         const SizedBox(height: 24),
