@@ -16,7 +16,7 @@ class Subject {
 
   factory Subject.fromJson(Map<String, dynamic> json) {
     final worksData = json['works'] as List<dynamic>? ?? [];
-    final authorsData = json['top_authors'] as List<dynamic>? ?? [];
+    final authorsData = json['authors'] as List<dynamic>? ?? [];
 
     return Subject(
       name: json['name']?.toString() ?? '',
